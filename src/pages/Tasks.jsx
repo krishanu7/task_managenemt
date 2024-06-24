@@ -4,7 +4,7 @@ import { FaList } from "react-icons/fa";
 import { TASK_TYPE } from "../utils/index"
 import Loading from "../components/Loading"
 import { useParams } from "react-router-dom"
-import {tasks} from "../assets/data"
+import { tasks } from "../assets/data"
 import Button from "../components/Button"
 import { IoMdAdd } from "react-icons/io";
 import Title from "../components/Title"
@@ -26,41 +26,43 @@ const Tasks = () => {
   const status = params?.status || "";
 
   return loading ? (
-    <div className='py-10'><Loading /></div>
+    <div className='py-10'>
+      <Loading />
+    </div>
   ) : (
     <div className='w-full'>
       <div className='flex items-center justify-between mb-4'>
         <Title title={status ? `${status} Tasks` : "Tasks"} />
-        {
-          !status && (
-            <Button
-              onClick={() => setOpen(true)}
-              label="Create Task"
-              icon={<IoMdAdd />}
-              className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
-            />
-          )
-        }
+
+        {!status && (
+          <Button
+            onClick={() => setOpen(true)}
+            label='Create Task'
+            icon={<IoMdAdd className='text-lg' />}
+            className='flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5'
+          />
+        )}
       </div>
+
       <Tabs tabs={TABS} setSelected={setSelected}>
-        {
-          !status && (
-            <div className='w-full flex justify-between gap-4 md:gap-x-12 py-4'>
-              <TaskTitle label="To Do" className={TASK_TYPE.todo} />
-              <TaskTitle label="In Progress" className={TASK_TYPE['in progress']} />
-              <TaskTitle label="Completed" className={TASK_TYPE.completed} />
-            </div>
-          )
-        }
-        {
-          selected !== 1 ? (
-            <BoardView tasks={tasks} />
-          ) : (
-            <div className='w-full'>
-              <Table tasks={tasks} />
-            </div>
-          )
-        }
+        {!status && (
+          <div className='w-full flex justify-between gap-4 md:gap-x-12 py-4'>
+            <TaskTitle label='To Do' className={TASK_TYPE.todo} />
+            <TaskTitle
+              label='In Progress'
+              className={TASK_TYPE["in progress"]}
+            />
+            <TaskTitle label='completed' className={TASK_TYPE.completed} />
+          </div>
+        )}
+
+        {selected !== 1 ? (
+          <BoardView tasks={tasks} />
+        ) : (
+          <div className='w-full'>
+            <Table tasks={tasks} />
+          </div>
+        )}
       </Tabs>
       <AddTask open={open} setOpen={setOpen} />
     </div>
