@@ -6,10 +6,11 @@ import {
   MdKeyboardDoubleArrowUp,
   MdKeyboardDoubleArrowDown
 } from "react-icons/md";
-import { BGS, PRIOTITYSTYELS, TASK_TYPE , getInitials} from "../../utils";
+import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate, getInitials } from "../../utils";
 import clsx from "clsx"
 import UserInfo from "../../components/UserInfo";
-
+import { BiMessageAltDetail } from 'react-icons/bi';
+import { FaList } from 'react-icons/fa';
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
@@ -17,18 +18,19 @@ const ICONS = {
   low: <MdKeyboardDoubleArrowDown />
 };
 
-const Table = ({tasks}) => {
-  const [openDialog , setOpenDialog] = useState(false);
+const Table = ({ tasks }) => {
+  console.log({ tasks })
+  const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
-  const deleteClicks =(id) => {
+  const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
   }
-  const deleteHandler = () => {};
+  const deleteHandler = () => { };
   const TableHeader = () => (
     <thead className='w-full border-b border-gray-300'>
       <tr className='w-full text-black  text-left'>
-        <th className='py-2'>Task Title</th>
+        <th className='py-2 w-[45%]'>Task Title</th>
         <th className='py-2'>Priority</th>
         <th className='py-2 line-clamp-1'>Created At</th>
         <th className='py-2'>Assets</th>
@@ -36,7 +38,7 @@ const Table = ({tasks}) => {
       </tr>
     </thead>
   );
-  const TableRow = ({task}) => (
+  const TableRow = ({ task }) => (
     <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/20'>
       <td className='py-2'>
         <div className='flex items-center gap-2'>
@@ -48,25 +50,71 @@ const Table = ({tasks}) => {
           </p>
         </div>
       </td>
-
+      <td className='py-2'>
+        <div className='flex gap-1 items-center'>
+          <span className={clsx("text-lg", PRIOTITYSTYELS[task?.priority])}>
+            {ICONS[task?.priority]}
+          </span>
+          <span className='capitalize line-clamp-1'>
+            {task?.priority}
+          </span>
+        </div>
+      </td>
+      <td className='py-2'>
+        <span className='text-base text-gray-600'>{formatDate(new Date(task?.date))}</span>
+      </td>
+      <td className='py-2'>
+        <div className='flex items-center gap-2'>
+          <div className='flex gap-1 items-center text-base text-gray-600'>
+            <BiMessageAltDetail />
+            <span>{task?.activities?.length}</span>
+          </div>
+          <div className='flex gap-1 items-center text-base text-gray-600'>
+            <MdAttachFile />
+            <span>{task?.assets?.length}</span>
+          </div>
+          <div className='flex gap-1 items-center text-base text-gray-600'>
+            <FaList />
+            <span>0/{task?.subTasks?.length}</span>
+          </div>
+        </div>
+      </td>
+      <td className='py-2'>
+        <div className='flex'>
+          {
+            task?.team?.map((member, index) => (
+              <div key={index} className={clsx('w-7 h-7 rounded-full text-white flex justify-center items-center text-sm -mr-1', BGS[index % BGS?.length])}>
+                <UserInfo user={member} />
+              </div>
+            ))
+          }
+        </div>
+      </td>
     </tr>
   )
   return (
     <>
-      <div>
-        <div>
+      <div className='bg-white px-2 md:px-4 pt-4 pb-9 shadow-md rounded'>
+        <div className='overflow-x-auto'>
           <table className='w-full'>
             <TableHeader />
             <tbody>
               {
                 tasks.map((task, index) => (
-                  <TableRow key={index} task={task}/>
+                  <TableRow key={index} task={task} />
                 ))
               }
             </tbody>
           </table>
         </div>
       </div>
+      {/* TODO: 
+       <ConfirmatioDialog
+        open={openDialog}
+        setOpen={setOpenDialog}
+        onClick={deleteHandler}
+        />
+        */}
     </>
   )
 }
