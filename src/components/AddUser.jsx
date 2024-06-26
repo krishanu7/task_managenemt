@@ -1,6 +1,5 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useSelector } from "react-redux"
 import DialogWrapper from "./DialogWrapper"
 import { Dialog, DialogTitle } from '@headlessui/react'
 import InputBox from "../components/InputBox"
