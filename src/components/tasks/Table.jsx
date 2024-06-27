@@ -12,7 +12,7 @@ import UserInfo from "../../components/UserInfo";
 import { BiMessageAltDetail } from 'react-icons/bi';
 import { FaList } from 'react-icons/fa';
 import Button from "../Button"
-
+import { ConfirmationDialog } from "../Dialogs"
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
@@ -24,14 +24,14 @@ const Table = ({ tasks }) => {
   console.log({ tasks })
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
- 
+
   const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
   }
-  
+
   const deleteHandler = () => { };
-  const handleEdit = () => {}
+  const handleEdit = () => { }
   const TableHeader = () => (
     <thead className='w-full border-b border-gray-300'>
       <tr className='w-full text-black  text-left'>
@@ -96,13 +96,13 @@ const Table = ({ tasks }) => {
         </div>
       </td>
       <td className='py-2 flex gap-2 md:gap-4 justify-end'>
-        <Button 
+        <Button
           className="text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base"
           label="Edit"
           type="button"
-          onClick={()=>handleEdit(task._id)}
+          onClick={() => handleEdit(task._id)}
         />
-        <Button 
+        <Button
           className="text-red-700 hover:text-red-500 sm:px-0 text-sm md:text-base"
           label="Delete"
           type="button"
@@ -127,13 +127,11 @@ const Table = ({ tasks }) => {
           </table>
         </div>
       </div>
-      {/* TODO: 
-       <ConfirmatioDialog
+      <ConfirmationDialog
         open={openDialog}
         setOpen={setOpenDialog}
         onClick={deleteHandler}
-        />
-        */}
+      />
     </>
   )
 }
