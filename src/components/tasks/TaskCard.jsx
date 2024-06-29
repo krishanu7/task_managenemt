@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { MdAttachFile, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp, MdKeyboardDoubleArrowDown } from "react-icons/md";
 import { useSelector } from "react-redux"
-import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../../utils";
+import { BGS, PRIORITYSTYELS, TASK_TYPE, formatDate } from "../../utils";
 import clsx from 'clsx';
 import { BiMessageAltDetail } from "react-icons/bi"
 import { FaList } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io"
 import UserInfo from "../UserInfo"
 import AddSubTask from "./AddSubTask"
+import TaskDialog from "./TaskDialog"
 const ICONS = {
     high: <MdKeyboardDoubleArrowUp />,
     medium: <MdKeyboardArrowUp />,
@@ -22,11 +23,11 @@ const TaskCard = ({ task }) => {
         <>
             <div className='w-full h-fit bg-white shadow-md p-4 rounded'>
                 <div className='w-full flex justify-between'>
-                    <div className={clsx('flex flex-1 gap-3 items-center text-sm font-medium', PRIOTITYSTYELS[task?.priority])}>
+                    <div className={clsx('flex flex-1 gap-3 items-center text-sm font-medium', PRIORITYSTYELS[task?.priority])}>
                         <span className='text-xl'>{ICONS[task?.priority]}</span>
                         <span className='uppercase'>{task?.priority} Priority</span>
                     </div>
-                    {/* TODO: {user?.isAdmin && <TaskDialog task={task} />} */}
+                    {user?.isAdmin && <TaskDialog task={task} />}
                 </div>
                 <div className='flex flex-col gap-1 my-1'>
                     <div className='flex items-center gap-3 ml-[3px]'>

@@ -6,13 +6,14 @@ import {
   MdKeyboardDoubleArrowUp,
   MdKeyboardDoubleArrowDown
 } from "react-icons/md";
-import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate, getInitials } from "../../utils";
+import { BGS, PRIORITYSTYELS, TASK_TYPE, formatDate, getInitials } from "../../utils";
 import clsx from "clsx"
 import UserInfo from "../../components/UserInfo";
 import { BiMessageAltDetail } from 'react-icons/bi';
 import { FaList } from 'react-icons/fa';
 import Button from "../Button"
 import { ConfirmationDialog } from "../Dialogs"
+
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
@@ -21,10 +22,8 @@ const ICONS = {
 };
 
 const Table = ({ tasks }) => {
-  console.log({ tasks })
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
-
   const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
@@ -57,7 +56,7 @@ const Table = ({ tasks }) => {
       </td>
       <td className='py-2'>
         <div className='flex gap-1 items-center'>
-          <span className={clsx("text-lg", PRIOTITYSTYELS[task?.priority])}>
+          <span className={clsx("text-lg", PRIORITYSTYELS[task?.priority])}>
             {ICONS[task?.priority]}
           </span>
           <span className='capitalize line-clamp-1'>

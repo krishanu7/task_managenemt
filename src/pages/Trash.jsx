@@ -5,7 +5,7 @@ import { tasks } from '../assets/data'
 import Title from '../components/Title'
 import Button from '../components/Button'
 import { ConfirmationDialog } from '../components/Dialogs'
-import { PRIOTITYSTYELS, TASK_TYPE } from "../utils"
+import { PRIORITYSTYELS, TASK_TYPE } from "../utils"
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -65,7 +65,7 @@ const Trash = () => {
       </td>
       <td className='py-2'>
         <div className='flex gap-1 items-center'>
-          <span className={clsx("text-lg", PRIOTITYSTYELS[item?.priority])}>
+          <span className={clsx("text-lg", PRIORITYSTYELS[item?.priority])}>
             {ICONS[item?.priority]}
           </span>
           <span className='capitalize line-clamp-1'>
