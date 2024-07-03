@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { MdOutlineSearch } from "react-icons/md";
 import { setOpenSidebar } from "../redux/slices/authSlice";
@@ -9,7 +9,6 @@ import NotificationPanel from './NotificationPanel';
 const Navbar = () => {
     const { user } = useSelector((state) => state.auth)
     const dispatch = useDispatch();
-
     return (
         <div className='flex justify-between items-center bg-white px-4 py-3 2xl:py-4 sticky z-10 top-0'>
             <div className='flex gap-4'>

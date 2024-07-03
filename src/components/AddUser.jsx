@@ -1,16 +1,43 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import DialogWrapper from "./DialogWrapper"
-import { Dialog, DialogTitle } from '@headlessui/react'
+import { DialogTitle } from '@headlessui/react'
 import InputBox from "../components/InputBox"
 import Loading from "../components/Loading"
 import Button from "../components/Button"
-
+import { useRegisterMutation } from '../redux/slices/api/authApiSlice'
+import { useUpdateMutation } from '../redux/slices/api/userApiSlice'
+import { generatePassword } from '../utils'
+import { toast } from 'sonner'
+import { useDispatch } from 'react-redux'
+import { setCredentials } from "../redux/slices/authSlice.js"
 const AddUser = ({ open, setOpen, userData }) => {
     const defaultValues = userData ?? {};
     // console.log(userData);
-    const { register, handleSubmit, formState: { errors, isLoading } } = useForm({ defaultValues })
-    const submitHandler = () => { console.log("Added User") };
+    const password = generatePassword();
+    const dispatch = useDispatch();
+    const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues })
+    const [addNewUser, { isLoading }] = useRegisterMutation();
+    const [updateUser, { isLoading: isUpdating }] = useUpdateMutation();
+    const submitHandler = async (data) => {
+        try {//TODO: After adding user admin is loggin out 
+            if (userData) {
+                const result = await updateUser(data).unwrap();
+                toast.success(result?.message);
+                dispatch(setCredentials(result?.user));
+                // if (userData?._id === result.user._id)
+            } else {
+                const result = await addNewUser({ ...data, password }).unwrap();
+                //TODO: Send through email also
+                toast.success("New User added successfully");
+            }
+            setTimeout(() => {
+                setOpen(false);
+            }, 1000)
+        } catch (error) {
+            toast.error("Something went wrong");
+        }
+    };
     return (
         <DialogWrapper open={open} setOpen={setOpen}>
             <form onSubmit={handleSubmit(submitHandler)}>
@@ -57,11 +84,9 @@ const AddUser = ({ open, setOpen, userData }) => {
                 </div>
                 {
                     isLoading ? (
-                        <div className='-translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2'>
-                            <Loading />
-                        </div>
+                        <Loading />
                     ) : (
-                        <div className='py-3 mt-4 sm:flex sm:flex-row-reverse gap-2'>
+                        <div className='py-3 mt-4 flex justify-end gap-2'>
                             <Button
                                 type="submit"
                                 className="bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto rounded-md"

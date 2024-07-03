@@ -25,13 +25,22 @@ export function dateFormatter(dateString) {
 }
 
 export function getInitials(fullName) {
-  const names = fullName.split(" ");
+  const names = fullName?.split(" ");
 
-  const initials = names.slice(0, 2).map((name) => name[0].toUpperCase());
+  const initials = names?.slice(0, 2).map((name) => name[0].toUpperCase());
 
-  const initialsStr = initials.join("");
+  const initialsStr = initials?.join("");
 
   return initialsStr;
+}
+
+export function generatePassword () {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+  let password = '';
+  for(let i=0; i<10; i++){
+    password += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return password;
 }
 
 export const PRIORITYSTYELS = {

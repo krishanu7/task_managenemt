@@ -5,22 +5,30 @@ import { FaUser, FaUserLock } from 'react-icons/fa';
 import { IoLogOutOutline } from 'react-icons/io5';
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react"
 import { getInitials } from "../utils";
-
+import { logout } from '../redux/slices/authSlice';
+import { useLogoutMutation } from "../redux/slices/api/authApiSlice"
+import {toast} from "sonner"
 const UserAvatar = () => {
     const [open, setOpen] = useState(false);
     const [openPassword, setOpenPassword] = useState(false);
     const { user } = useSelector((state) => state.auth)
+    const [logoutUser] = useLogoutMutation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-//TODO: 1) logout, 2) change password, 3) Profile page
-    const logoutHandler = () => {
-        console.log("logout");
+    //TODO: 1) logout, 2) change password, 3) Profile page
+    const logoutHandler = async () => {
+        try {
+            await logoutUser().unwrap();
+            dispatch(logout());
+        } catch (error) {
+            toast.error(error?.data?.message || error.message);
+        }
     }
     return (
         <Menu as="div" className="relative inline-block text-left">
             <MenuButton className="w-10 h-10 2xl:w-12 2xl:h-12 items-center justify-center rounded-full bg-blue-600">
                 <span className='text-white font-semibold'>
-                    {getInitials(user?.username)}
+                    {getInitials(user?.name)}
                 </span>
             </MenuButton>
             <MenuItems

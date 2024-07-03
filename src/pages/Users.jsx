@@ -4,21 +4,58 @@ import Button from "../components/Button";
 import clsx from "clsx";
 import { IoMdAdd } from "react-icons/io";
 import { getInitials } from "../utils"
-import { summary } from "../assets/data"
 import AddUser from '../components/AddUser';
 import { ConfirmationDialog, UserAction } from '../components/Dialogs';
+import { useDeleteUserMutation, useGetTeamListQuery, useUserActiveMutation } from '../redux/slices/api/userApiSlice';
+import Loading from '../components/Loading';
+import { toast } from 'sonner';
 
 const Users = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const [openAction, setOpenAction] = useState(false);
   const [selected, setSelected] = useState(null);
+  const { data, isLoading } = useGetTeamListQuery();
+  const [deleteUser] = useDeleteUserMutation();
+  const [userActive] = useUserActiveMutation();
 
-  const userActionHandler = () => { };
-  const deleteHandler = () => { };
+  const userActionHandler = async (el) => {
+    try {
+      setSelected(el);
+      const result = await userActive({
+        isActive: !selected?.isActive,
+        id: selected?._id
+      })
+      toast.success(result.data.message);
+      setSelected(null);
+      setTimeout(() => {
+        setOpenAction(false);
+      }, 500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error)
+    }
+  };
 
-  const deleteClick = (id) => {
-    setSelected(id);
+  const deleteHandler = async () => {
+    try {
+      const result = await deleteUser(selected?._id);
+      toast.success(result?.data?.message);
+      setSelected(null);
+      setTimeout(() => {
+        setOpenDialog(false);
+      }, 500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error)
+    }
+  };
+  const userStatusClick = (el) => {
+    setSelected(el);
+    setOpenAction(true);
+  }
+  const deleteClick = (el) => {
+    setSelected(el);
     setOpenDialog(true);
   };
 
@@ -57,7 +94,7 @@ const Users = () => {
 
       <td>
         <button
-          // onClick={() => userStatusClick(user)}
+          onClick={() => userStatusClick(user)}
           className={clsx(
             "w-fit px-4 py-1 rounded-full",
             user?.isActive ? "bg-blue-200" : "bg-yellow-100"
@@ -79,57 +116,62 @@ const Users = () => {
           className='text-red-700 hover:text-red-500 font-semibold sm:px-0'
           label='Delete'
           type='button'
-          onClick={() => deleteClick(user?._id)}
+          onClick={() => deleteClick(user)}
         />
       </td>
     </tr>
   );
 
   return (
-    <>
-      <div className='w-full md:px-1 px-0 mb-6'>
-        <div className='flex items-center justify-between mb-8'>
-          <Title title="Team Members" />
-          <Button
-            label="Add New User"
-            icon={<IoMdAdd className='text-lg' />}
-            className="flex flex-row-reverse gap-1 items-center bg-blue-600 hover:bg-blue-700 text-white rounded-md 2xl:py-2.5"
-            onClick={() => setOpen(true)}
-          />
-        </div>
-        <div className='bg-white px-2 md:px-4 py-4 shadow-lg rounded'>
-          <div className='overflow-x-auto'>
-            <table className='w-full px-4 mb-5'>
-              <TableHeader />
-              <tbody>
-                {
-                  summary.users?.map((user, index) => (
-                    <TableRow key={index} user={user} />
-                  ))
-                }
-              </tbody>
-            </table>
+    <> {isLoading ? <div className='-translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2'>
+      <Loading />
+    </div> : (
+      <>
+        <div className='w-full md:px-1 px-0 mb-6'>
+          <div className='flex items-center justify-between mb-8'>
+            <Title title="Team Members" />
+            <Button
+              label="Add New User"
+              icon={<IoMdAdd className='text-lg' />}
+              className="flex flex-row-reverse gap-1 items-center bg-blue-600 hover:bg-blue-700 text-white rounded-md 2xl:py-2.5"
+              onClick={() => setOpen(true)}
+            />
+          </div>
+          <div className='bg-white px-2 md:px-4 py-4 shadow-lg rounded'>
+            <div className='overflow-x-auto'>
+              <table className='w-full px-4 mb-5'>
+                <TableHeader />
+                <tbody>
+                  {
+                    data?.map((user, index) => (
+                      <TableRow key={index} user={user} />
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      <AddUser
-        open={open}
-        setOpen={setOpen}
-        userData={selected}
-        key={new Date().getTime().toString()}
-      />
+        <AddUser
+          open={open}
+          setOpen={setOpen}
+          userData={selected}
+          key={new Date().getTime().toString()}
+        />
 
-      <ConfirmationDialog
-        open={openDialog}
-        setOpen={setOpenDialog}
-        onClick={deleteHandler}
-      />
+        <ConfirmationDialog
+          open={openDialog}
+          setOpen={setOpenDialog}
+          onClick={deleteHandler}
+        />
 
-      <UserAction
-        open={openAction}
-        setOpen={setOpenAction}
-        onClick={userActionHandler}
-      />
+        <UserAction
+          open={openAction}
+          setOpen={setOpenAction}
+          onClick={userActionHandler}
+        />
+      </>
+    )}
     </>
   )
 }

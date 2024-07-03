@@ -51,7 +51,17 @@ const App = () => {
         </Route>
         <Route path='/log-in' element={<Login />} />
       </Routes>
-      <Toaster richColors position="top-right" />
+      <Toaster
+        richColors
+        position="top-right"
+        toastOptions={{
+          style: {
+            height: "50px",
+            width: "90%",
+            padding: "10px",
+            fontSize: "18px",
+          }
+        }} />
     </main>
   )
 }

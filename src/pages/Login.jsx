@@ -4,14 +4,27 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux"
 import InputBox from "../components/InputBox"
 import Button from "../components/Button"
-
+import { useLoginMutation } from '../redux/slices/api/authApiSlice';
+import { toast } from "sonner"
+import Loading from "../components/Loading"
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../redux/slices/authSlice';
 const Login = () => {
-  const {user} = useSelector((state) => state.auth);
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  const { user } = useSelector((state) => state.auth);
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
-  console.log(user);
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useDispatch();
+
   const submitHandler = async (data) => {
-    console.log("submit");
+    try {
+      const result = await login(data).unwrap();
+      dispatch(setCredentials(result));
+      toast.success("Logged in successfully");
+      navigate("/");
+    } catch (error) {
+      toast.error(error?.data?.message || error.message);
+    }
   }
   // console.log(watch("email"))
   useEffect(() => {
@@ -75,11 +88,11 @@ const Login = () => {
               <span className='text-sm text-gray-500 hover:text-blue-600 hover:underline cursor-pointer'>
                 Forget Password?
               </span>
-              <Button
+              { isLoading ? <Loading /> :<Button
                 type="submit"
                 label="submit"
                 className="w-full h-10 bg-blue-700 text-white rounded-full"
-              />
+              />}
             </div>
           </form>
         </div>

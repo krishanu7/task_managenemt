@@ -74,16 +74,16 @@ const UserAction = ({ open, setOpen, onClick = () => { } }) => {
                     {"Are your sure you want to activate or deactivate this account ?"}
                 </p>
             </div>
-            <div>
+            <div className='flex flex-row gap-4 justify-end'>
                 <Button
                     type="button"
-                    className="px-8 text-sm font-semibold text-white sm:w-auto bg-red-600 hover:bg-red-500"
+                    className="px-8 text-sm font-semibold text-white sm:w-auto bg-red-600 hover:bg-red-500 rounded-md"
                     onClick={onClick}
                     label="Yes"
                 />
                 <Button
                     type='button'
-                    className='bg-white px-8 text-sm font-semibold text-gray-900 sm:w-auto border'
+                    className='bg-slate-100 px-8 text-sm font-semibold text-gray-900 sm:w-auto border rounded-md'
                     onClick={() => closeDialog()}
                     label='No'
                 />
