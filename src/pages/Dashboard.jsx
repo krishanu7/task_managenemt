@@ -11,10 +11,11 @@ import { FaNewspaper } from "react-icons/fa"
 import { FaArrowsToDot } from "react-icons/fa6";
 import moment from "moment"
 import Chart from "../components/Chart"
-import { summary } from "../assets/data"
 import clsx from "clsx"
-import { BGS, PRIORITYSTYELS, TASK_TYPE , getInitials} from "../utils";
+import { BGS, PRIORITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import UserInfo from "../components/UserInfo";
+import { useGetDashboardStatsQuery } from '../redux/slices/api/taskApiSlice';
+import Loading from "../components/Loading.jsx";
 
 const TaskTable = ({ tasks }) => {
   const ICONS = {
@@ -57,7 +58,7 @@ const TaskTable = ({ tasks }) => {
       {/* Team Members */}
       <td className='py-2'>
         <div className='flex'>
-          {task.team.map((m, index) => (
+          {task?.team?.map((m, index) => (
             <div
               key={index}
               className={clsx(
@@ -135,7 +136,7 @@ const UserTable = ({ users }) => {
         <tbody>
           {
             users?.map((user, index) => (
-              <TableRow key={index+user?._id} user={user} />
+              <TableRow key={index + user?._id} user={user} />
             ))
           }
         </tbody>
@@ -143,14 +144,21 @@ const UserTable = ({ users }) => {
     </div>
   )
 }
-
 const Dashboard = () => {
-  const totals = summary.tasks;
+  const { data, isLoading } = useGetDashboardStatsQuery();
+  if(isLoading) {
+    return (
+      <div className='py-10 px-5'>
+        <Loading />
+      </div>
+    )
+  }
+  const totals = data?.tasks;
   const stats = [
     {
       _id: "1",
       label: "TOTAL TASK",
-      total: summary?.totalTasks || 0,
+      total: data?.totalTasks || 0,
       icon: <FaNewspaper />,
       bg: "bg-[#1d4ed8]",
     },
@@ -203,13 +211,13 @@ const Dashboard = () => {
         <span className='text-2xl text-slate-100 font-semibold bg-gray-700 rounded-md px-3 py-2'>
           Chart by Priority
         </span>
-        <Chart />
+        <Chart chartData={data?.graphData}/>
       </div>
       <div className='w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-2'>
         {/* left table */}
-        <TaskTable tasks={summary.last10Task} />
+        <TaskTable tasks={data.last10Task} />
         {/* Right table */}
-        <UserTable users={summary.users} />
+        <UserTable users={data.users} />
       </div>
     </div>
   )

@@ -3,10 +3,25 @@ import { useForm } from "react-hook-form"
 import DialogWrapper from "../DialogWrapper"
 import InputBox from '../InputBox'
 import Button from "../Button"
+import { useCreateSubTaskMutation } from '../../redux/slices/api/taskApiSlice'
+import { toast } from 'sonner'
 
 const AddSubTask = ({ open, setOpen, id }) => {
+  const [createSubTask] = useCreateSubTaskMutation();
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const handleOnSubmit = () => console.log("Submitted");
+  const handleOnSubmit = async (data) => {
+    try {
+      const result = await createSubTask({data,id}).unwrap();
+      toast.success(result.message);
+      window.location.reload();
+      setTimeout(() => {
+        setOpen(false);
+      },500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error);
+    }
+  };
   return (
     <>
       <DialogWrapper open={open} setOpen={setOpen}>

@@ -27,7 +27,7 @@ const TaskCard = ({ task }) => {
                         <span className='text-xl'>{ICONS[task?.priority]}</span>
                         <span className='uppercase'>{task?.priority} Priority</span>
                     </div>
-                    {user?.isAdmin && <TaskDialog task={task} />}
+                    <TaskDialog task={task}/>
                 </div>
                 <div className='flex flex-col gap-1 my-1'>
                     <div className='flex items-center gap-3 ml-[3px]'>
@@ -91,7 +91,7 @@ const TaskCard = ({ task }) => {
                     <button 
                         onClick={() => setOpen(true)}
                         disabled={user?.isAdmin ? false : true}
-                        className='flex gap-2 items-center text-sm text-gray-700 bg-green-400 rounded-md px-3 py-2 w-fit font-semibold disabled:cursor-not-allowed disabled:text-gray-300'
+                        className='flex gap-2 items-center text-sm text-gray-700 bg-green-400 rounded-md px-3 py-2 w-fit font-semibold disabled:cursor-not-allowed disabled:text-gray-300 disabled:bg-white'
                     >
                         <IoMdAdd className='text-xl'/>
                         <span className='uppercase'>Add Subtask</span>

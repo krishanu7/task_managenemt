@@ -7,26 +7,115 @@ import UserList from "./UserList";
 import SelectList from "../SelectList"
 import { BiImages } from "react-icons/bi"
 import Button from '../Button';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { app } from "../../utils/firebase.js"
+import { toast } from "sonner";
+import { useCreateTaskMutation, useUpdateTaskMutation } from '../../redux/slices/api/taskApiSlice.js';
+import { dateFormatter } from '../../utils/index.js';
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
 const uploadedFileUrls = [];
 
-const AddTask = ({ open, setOpen }) => {
-  const task = "";
-  const { register, handleSubmit, formState: { errors } } = useForm();
+const AddTask = ({ open, setOpen, task}) => {
+
+  const defaultValues = {
+    title: task?.title || "",
+    date: dateFormatter(task?.date || new Date()),
+    team: [],
+    stage: "",
+    priority: "",
+    assets: [],
+  }
+  const { register, handleSubmit, formState: { errors } } = useForm({defaultValues});
   const [team, setTeam] = useState(task?.team || [])
   const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0]);
   const [priority, setPriority] = useState(task?.priority?.toUpperCase() || PRIORIRY[2]);
   const [assets, setAssets] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
+  const URLS = task?.assets ? [...task.assets] : [];
 
-  const submitHandler = () => { console.log("Submited") };
 
+  const submitHandler = async (data) => {
+    for (const file of assets) {
+      setUploading(true);
+      try {
+        await uploadFile(file);
+      } catch (error) {
+        console.error("Error on uploading file", error.message);
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
+    try {
+      const newData = {
+        ...data,
+        assets: [...URLS, ...uploadedFileUrls],
+        team,
+        stage,
+        priority,
+      };
+
+      const result = task?._id
+        ? await updateTask({ ...newData, _id: task._id }).unwrap()
+        : await createTask(newData).unwrap();
+
+      toast.success(result.message);
+      setTimeout(() => {
+        setOpen(false);
+      }, 500);
+    } catch (error) {
+      console.error("Error in submitHandler:", error);
+      toast.error("Failed to create or update the task");
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  }
+  
   const handleSelect = (e) => {
     setAssets(e.target.files)
   }
-
+  const uploadFile = async (file) => {
+    const storage = getStorage(app);
+    const name = new Date().getTime() + file.name;
+    const storageRef = ref(storage, name);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+          switch (snapshot.state) {
+            case 'paused':
+              console.log('Upload is paused');
+              break;
+            case 'running':
+              console.log('Upload is running');
+              break;
+          }
+        },
+        (error) => {
+          reject(error)
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              uploadedFileUrls.push(downloadURL);
+              resolve();
+            }).catch((error) => {
+              reject(error);
+            });
+        }
+      )
+    })
+  }
   return (
     <>
       <DialogWrapper open={open} setOpen={setOpen}>
@@ -35,8 +124,13 @@ const AddTask = ({ open, setOpen }) => {
             className="text-base font-bold leading-6 text-gray-900 mb-4"
           >{task ? "UPDATE TASK" : "ADD TASK"}</DialogTitle>
           <div className='mt-2 flex flex-col gap-6'>
-            <InputBox placeholder="Task Title"
-              className="w-full"
+            <InputBox
+              placeholder='Task Title'
+              type='text'
+              name='title'
+              label='Task Title'
+              className='w-full rounded'
+              register={register("title", { required: "Title is required" })}
               error={errors.title ? errors.title.message : ""}
             />
 
@@ -105,7 +199,7 @@ const AddTask = ({ open, setOpen }) => {
               <Button
                 type="button"
                 className="bg-white px-5 text-sm font-semibold text-gray-900 sm:w-auto"
-                onClick={() => setOpen(false)}
+                onClick={handleCancel}
                 label="Cancel"
               />
             </div>

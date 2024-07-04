@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { tasks } from "../assets/data"
 import { MdKeyboardArrowDown, MdKeyboardDoubleArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp, MdOutlineDoneAll, MdOutlineMessage, MdTaskAlt, MdTask, } from "react-icons/md";
 import { FaTasks, FaThumbsUp, FaUser, FaBug } from "react-icons/fa";
 import { RxActivityLog } from "react-icons/rx";
@@ -9,16 +8,12 @@ import Tabs from "../components/Tabs"
 import { getInitials, PRIORITYSTYELS, TASK_TYPE } from "../utils"
 import clsx from 'clsx';
 import moment from "moment"
-import Loading from "../components/Loading"
+import Loading from "../components/Loading.jsx"
 import Button from "../components/Button"
 import { PiLineVerticalThin } from "react-icons/pi";
+import { useGetSingleTaskQuery, usePostActivityMutation } from '../redux/slices/api/taskApiSlice';
+import {toast} from "sonner";
 
-const assets = [
-  "https://images.pexels.com/photos/2418664/pexels-photo-2418664.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/8797307/pexels-photo-8797307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/2534523/pexels-photo-2534523.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/804049/pexels-photo-804049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-];
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
@@ -77,9 +72,18 @@ const TASKTYPEICON = {
 
 const TaskDetails = () => {
   const { id } = useParams();
+  const { data, isLoading, refetch } = useGetSingleTaskQuery(id);
   const [selected, setSelected] = useState(0);
-  const task = tasks[3];
 
+  if (isLoading) {
+    return (
+      <div className='py-10 px-5'>
+        <Loading />
+      </div>
+    );
+  }
+
+  const task = data?.task;
   return (
     <div className='w-full flex flex-col gap-3 mb-4 overflow-y-hidden'>
       <h1 className='text-2xl text-gray-600 font-bold'>{task?.title}</h1>
@@ -175,7 +179,7 @@ const TaskDetails = () => {
             </>
           ) : (
             <>
-              <Activities activity={task?.activities} id={id} />
+              <Activities activity={task?.activities} id={id} refetch={refetch} />
             </>
           )
         }
@@ -184,12 +188,29 @@ const TaskDetails = () => {
   )
 }
 
-const Activities = ({ activity, id }) => {
+const Activities = ({ activity, id , refetch}) => {
   const [selected, setSelected] = useState(act_types[0]);
   const [text, setText] = useState("");
-  const isLoading = false;
-
-  const handleSubmit = async () => { };
+  const [postActivity, { isLoading}] = usePostActivityMutation();
+  
+  const handleSubmit = async () => {
+    try {
+      const activityData = {
+        type: selected?.toLowerCase(),
+        activity: text,
+      }
+      const result = await postActivity({
+        data: activityData,
+        id
+      }).unwrap();
+      setText("");
+      toast.success(result?.message);
+      refetch();
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error);
+    }
+  };
 
   const Card = ({ item, isConnected }) => {
     return (
@@ -207,7 +228,8 @@ const Activities = ({ activity, id }) => {
           <p className="font-semibold">{item?.by?.name}</p>
           <div className="text-gray-500 space-y-2">
             <span className="capitalize">{item?.type}</span>
-            <span className="text-sm ml-2">{moment(item?.date).fromNow()}</span>
+            {/* TODO: Change Time format */}
+            <span className="text-sm ml-2">{moment(item?.date).fromNow()}</span> 
           </div>
           <div className="text-gray-700">{item?.activity}</div>
         </div>
@@ -249,7 +271,9 @@ const Activities = ({ activity, id }) => {
             className='bg-white w-full mt-10 border border-gray-300 outline-none p-4 rounded-md focus:ring-2 ring-blue-500'
           />
           {isLoading ? (
-            <Loading />
+            <div className='py-10 px-5'>
+              <Loading />
+            </div>
           ) : (
             <Button
               type="button"

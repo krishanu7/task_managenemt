@@ -1,6 +1,5 @@
 import React from 'react'
 import DialogWrapper from './DialogWrapper';
-import { DialogTitle } from '@headlessui/react';
 import { FaQuestion } from "react-icons/fa"
 import Button from './Button';
 import clsx from 'clsx';
@@ -38,11 +37,11 @@ const ConfirmationDialog = ({
                     {message ?? "Are you sure you want to delete the selected record?"}
                 </p>
 
-                <div className='bg-gray-50 py-3 sm:flex sm:flex-row-reverse gap-4'>
+                <div className='bg-gray-50 py-3 flex flex-row gap-4'>
                     <Button
                         type='button'
                         className={clsx(
-                            " px-8 text-sm font-semibold text-white sm:w-auto",
+                            " px-8 text-sm font-semibold text-white sm:w-auto rounded-md",
                             type === "restore" || type === "restoreAll"
                                 ? "bg-yellow-600"
                                 : "bg-red-600 hover:bg-red-500"
@@ -53,7 +52,7 @@ const ConfirmationDialog = ({
 
                     <Button
                         type='button'
-                        className='bg-white px-8 text-sm font-semibold text-gray-900 sm:w-auto border'
+                        className='bg-slate-100 px-8 text-sm font-semibold text-gray-900 sm:w-auto border rounded-md'
                         onClick={() => closeDialog()}
                         label='Cancel'
                     />

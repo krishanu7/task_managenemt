@@ -10,6 +10,8 @@ import clsx from "clsx"
 import AddTask from "./AddTask"
 import AddSubTask from "./AddSubTask"
 import { ConfirmationDialog } from "../Dialogs"
+import { useDuplicateTaskMutation, useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice.js"
+import { toast } from 'sonner';
 
 const TaskDialog = ({ task }) => {
   const [open, setOpen] = useState(false);
@@ -17,10 +19,38 @@ const TaskDialog = ({ task }) => {
   const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
+  const [deleteTask] = useTrashTaskMutation();
+  const [duplicateTask] = useDuplicateTaskMutation();
 
-  const duplicateHandler = () => { };
-  const deleteClicks = () => { setOpenDialog(true) };
-  const deleteHandler = () => { };
+  const duplicateHandler = async () => {
+    try {
+      const res = await duplicateTask(task._id).unwrap();
+      toast.success(res?.message);
+      setTimeout(() => {
+        setOpenDialog(false);
+        window.location.reload();
+      }, 500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error);
+    }
+  };
+  const deleteClicks = () => {
+    setOpenDialog(true)
+  };
+  const deleteHandler = async () => {
+    try {
+      const res = await deleteTask(task._id).unwrap();
+      toast.success(res?.message);
+      setTimeout(() => {
+        setOpenDialog(false);
+        window.location.reload();
+      }, 500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error);
+    }
+  };
 
   const items = [
     {

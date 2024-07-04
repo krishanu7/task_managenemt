@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown, MdKeyboardDoubleArrowUp, MdKeyboardDoubleArrowDown, MdDelete, MdOutlineRestore } from "react-icons/md"
 import clsx from 'clsx'
-import { tasks } from '../assets/data'
 import Title from '../components/Title'
 import Button from '../components/Button'
 import { ConfirmationDialog } from '../components/Dialogs'
 import { PRIORITYSTYELS, TASK_TYPE } from "../utils"
-
+import { useDeleteRestoreTaskMutation, useGetAllTasksQuery } from '../redux/slices/api/taskApiSlice'
+import Loading from '../components/Loading'
+import { toast } from "sonner"
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
@@ -21,26 +22,80 @@ const Trash = () => {
   const [type, setType] = useState("delete");
   const [selected, setSelected] = useState("");
 
+  const { data, isLoading, refetch } = useGetAllTasksQuery({
+    strQuery: "",
+    isTrashed: "true",
+    search: "",
+  });
+  const [deleteRestoreTask] = useDeleteRestoreTaskMutation();
+
   const restoreClick = (id) => {
     setSelected(id);
     setType("restore");
-    setMsg("Do you want to restore the selected item?");
+    setMessage("Do you want to restore the selected item?");
     setOpenDialog(true);
   }
   const restoreAllClick = () => {
     setType("restoreAll");
-    setMsg("Do you want to restore all items in the trash?");
+    setMessage("Do you want to restore all items in the trash?");
     setOpenDialog(true);
   }
   const deleteClick = (id) => {
     setType("delete");
     setSelected(id);
+    setMessage("Do you want to permanently delete the task?");
     setOpenDialog(true);
   }
-  const deleteRestoreHandler = () => {
+  const deleteAllClick = () => {
     setType("deleteAll");
-    setMsg("Do you want to permenantly delete all items?");
+    setMessage("Do you want to permanently delete all items in the trash?");
     setOpenDialog(true);
+  }
+  const deleteRestoreHandler = async () => {
+    try {
+      let result;
+      switch (type) {
+        case "delete":
+          result = await deleteRestoreTask({
+            id: selected,
+            actionType: "delete",
+          }).unwrap();
+          break;
+        case "deleteAll":
+          result = await deleteRestoreTask({
+            id: selected,
+            actionType: "deleteAll",
+          }).unwrap();
+          break;
+        case "restore":
+          result = await deleteRestoreTask({
+            id: selected,
+            actionType: "restore",
+          }).unwrap();
+          break;
+        case "restoreAll":
+          result = await deleteRestoreTask({
+            id: selected,
+            actionType: "restoreAll",
+          }).unwrap();
+          break;
+      }
+      toast.success(result?.message);
+      setTimeout(() => {
+        setOpenDialog(false);
+        refetch();
+      }, 500)
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error?.error);
+    }
+  }
+  if (isLoading) {
+    return (
+      <div className='py-10'>
+        <Loading />
+      </div>
+    )
   }
 
   const TableHeader = () => (
@@ -76,15 +131,15 @@ const Trash = () => {
       <td className='py-2 capitalize text-center md:text-start'>
         {item?.stage}
       </td>
-      <td>{new Date(item?.data).toDateString()}</td>
+      <td>{new Date(item?.date).toDateString()}</td>
       <td className='flex gap-1 justify-end py-2'>
         <Button
           icon={<MdDelete className='text-xl text-red-600' />}
-          onclick={() => restoreClick(item._id)}
+          onClick={() => restoreClick(item._id)}
         />
         <Button
           icon={<MdOutlineRestore className='text-xl text-green-500' />}
-          onCLick={() => deleteClick(item._id)}
+          onClick={() => deleteClick(item._id)}
         />
       </td>
     </tr>
@@ -116,7 +171,7 @@ const Trash = () => {
             <table className='w-full mb-5'>
               <TableHeader />
               <tbody>
-                {tasks?.map((task, id) => (
+                {data?.tasks?.map((task, id) => (
                   <TableRow key={id} item={task} />
                 ))}
               </tbody>

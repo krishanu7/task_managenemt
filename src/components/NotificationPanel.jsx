@@ -45,11 +45,11 @@ const NotificationPanel = () => {
         <>
             <Popover className="realtive">
                 <PopoverButton className="inline-flex items-center outline-none">
-                    <div className='w-8 h-8 flex items-center justify-center text-gray-800 relative md:mr-2'>
+                    <div className='w-8 h-8 flex items-center justify-center text-gray-800 relative md:mr-2 pt-2'>
                         <IoIosNotificationsOutline size={32} />
                         {
                             data?.length > 0 && (
-                                <span className='absolute text-center top-0 right-1 text-sm text-white font-semibold w-4 h-4 rounded-full bg-red-600'>
+                                <span className='absolute text-center top-0 right-0  text-sm text-white font-semibold w-5 h-5 rounded-full bg-red-600'>
                                     {data?.length}
                                 </span>
                             )

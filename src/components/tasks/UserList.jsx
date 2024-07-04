@@ -1,14 +1,14 @@
 import React from 'react'
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, Transition } from '@headlessui/react'
 import { Fragment, useEffect, useState } from 'react'
-import { summary } from "../../assets/data"
 import clsx from 'clsx'
 import { getInitials } from "../../utils"
 import { MdCheck } from 'react-icons/md'
 import { BsChevronExpand } from 'react-icons/bs'
+import { useGetTeamListQuery } from '../../redux/slices/api/userApiSlice'
 
 const UserList = ({ team, setTeam }) => {
-  const data = summary.users
+  const {data} = useGetTeamListQuery();
   const [selectedUsers, setSelectedUsers] = useState([]);
   const handleChange = (elem) => {
     setSelectedUsers(elem);
