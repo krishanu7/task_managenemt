@@ -23,8 +23,8 @@ const AddUser = ({ open, setOpen, userData }) => {
         try {//TODO: After adding user admin is loggin out 
             if (userData) {
                 const result = await updateUser(data).unwrap();
-                toast.success(result?.message);
-                dispatch(setCredentials(result?.user));
+                dispatch(setCredentials({...result?.user}));
+                toast.success("Profile updated successfully");
                 // if (userData?._id === result.user._id)
             } else {
                 const result = await addNewUser({ ...data, password }).unwrap();
