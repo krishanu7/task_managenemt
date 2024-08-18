@@ -2,7 +2,6 @@ import React from 'react'
 import clsx from "clsx"
 const Button = (props) => {
     const { icon, type, label, disabled, className, onClick = () => { } } = props;
-    console.log(disabled);
     return (
         <button
             type={type || "button"}

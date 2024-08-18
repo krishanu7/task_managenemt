@@ -20,7 +20,8 @@ const AddUser = ({ open, setOpen, userData }) => {
     const [addNewUser, { isLoading }] = useRegisterMutation();
     const [updateUser, { isLoading: isUpdating }] = useUpdateMutation();
     const submitHandler = async (data) => {
-        try {//TODO: After adding user admin is loggin out 
+        //TODO: after adding newuser current user is ouged out
+        try {
             if (userData) {
                 const result = await updateUser(data).unwrap();
                 dispatch(setCredentials({...result?.user}));
@@ -28,13 +29,13 @@ const AddUser = ({ open, setOpen, userData }) => {
                 // if (userData?._id === result.user._id)
             } else {
                 const result = await addNewUser({ ...data, password }).unwrap();
-                //TODO: Send through email also
                 toast.success("New User added successfully");
             }
             setTimeout(() => {
                 setOpen(false);
             }, 1000)
         } catch (error) {
+            console.log(error);
             toast.error("Something went wrong");
         }
     };
